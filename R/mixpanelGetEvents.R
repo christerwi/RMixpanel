@@ -7,6 +7,7 @@ mixpanelGetEvents <- function(
   daysPerBlock=10,     # Choose a smaller value if too much events.
   select=TRUE,         # If a vector of column names, only specified columns are selected.
   verbose=TRUE,        # Level of verbosity.
+  encoding="UTF-8",    # set RCurl encoding
   df=FALSE,            # Clean data and return data.frame instead of character matrix.
   ...                  # Additional arguments to Mixpanel API beside of <event>, <date_from>, <date_to>
                        # E.g. where='properties["$os"]=="iPhone OS"'
@@ -14,7 +15,7 @@ mixpanelGetEvents <- function(
   args = list(...)
   if (!missing(event))
     args$event = arrayRtoJSON(event)
-  
+  args$encoding=encoding
   dates = createDateSequence(from, to) 
   alldata = matrix(NA, 0, 0)
   
