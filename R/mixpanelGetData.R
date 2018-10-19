@@ -31,7 +31,7 @@ mixpanelGetData <- function(
         substr(urlAnonym, 15, 25) <- "XXXXXXXXXXX"
         cat("## Download ", urlAnonym, "... ", sep="")
       }
-      res <- RCurl::getURL(url, httpheader=headers)
+      res <- RCurl::getURL(url,.encoding=args$encoding, httpheader=headers)
       
       ## Create vector of events from \n-separated character scalar.
       if (verbose) {
