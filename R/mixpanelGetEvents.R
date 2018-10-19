@@ -1,43 +1,42 @@
 mixpanelGetEvents <- function(
-  account, 
+  account,
   event,               # Array of event names. If empty, all events are returned.
   from,                # Start date in either format <"yyyy-mm-dd"> or <yyyymmdd>. Inclusive.
   to=from,             # End date in either format <"yyyy-mm-dd"> or <yyyymmdd>. Inclusive.
-  
-  daysPerBlock=10,     # Choose a smaller value if too much events.
-  select=TRUE,         # If a vector of column names, only specified columns are selected.
-  verbose=TRUE,        # Level of verbosity.
-  encoding="UTF-8",    # set RCurl encoding
-  df=FALSE,            # Clean data and return data.frame instead of character matrix.
+
+  daysPerBlock = 10,     # Choose a smaller value if too much events.
+  select = TRUE,         # If a vector of column names, only specified columns are selected.
+  verbose = TRUE,        # Level of verbosity.
+  encoding = 'UTF-8',    # set RCurl encoding
+  df = FALSE,            # Clean data and return data.frame instead of character matrix.
   ...                  # Additional arguments to Mixpanel API beside of <event>, <date_from>, <date_to>
                        # E.g. where='properties["$os"]=="iPhone OS"'
 ) {
   args = list(...)
   if (!missing(event))
     args$event = arrayRtoJSON(event)
-  args$encoding=encoding
-  dates = createDateSequence(from, to) 
+  dates = createDateSequence(from, to)
   alldata = matrix(NA, 0, 0)
-  
+
   while (TRUE) {
     if (length(dates) == 0)
       break
-    
+
     n = min(daysPerBlock, length(dates))
     args$from_date = dates[1]
     args$to_date = dates[n]
-    
+
     if(verbose)
       cat("*** Load events from", dates[1], "to", dates[n], "\n")
-    data = mixpanelGetData(account, "export/", args, data=TRUE, verbose=verbose)
+    data = mixpanelGetData(account, "export/", args, data=TRUE, encoding = encoding, verbose = verbose)
     if(length(data) > 0)
       alldata = merge.matrix(alldata, eventsJson2RMatrix(data, select))
-    
+
     dates = dates[-(1:n)] # Update dates for next iteration.
   }
   if(verbose)
     cat(".\n")
-  
+
   if (nrow(alldata) > 0) {
     alldata <- getFlatMatrix(alldata)
     if(df) {
@@ -47,6 +46,6 @@ mixpanelGetEvents <- function(
         alldata$EventTimestamp <- as.numeric(alldata$EventTimestamp)
     }
   }
-  
+
   alldata
 }
